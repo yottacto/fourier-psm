@@ -14,7 +14,7 @@ namespace fpsm
 
         void init(func_type const& func);
         void iterate(int num);
-        void print();
+        void print() const;
 
         void normalize_lhs();
         void format_rhs();

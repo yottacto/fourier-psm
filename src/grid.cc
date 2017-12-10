@@ -3,8 +3,9 @@
 
 namespace fpsm
 {
-    grid::grid(int ncd, int bnpcd) :
-        ncd{ncd},
+    grid::grid(int bncd, int bnpcd) :
+        bncd{bncd},
+        ncd{1 << bncd},
         bnpcd{bnpcd},
         nc{ncd * ncd * ncd},
         npcd{1 << bnpcd},

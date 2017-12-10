@@ -11,7 +11,7 @@ namespace fpsm
         rank = MPI::COMM_WORLD.Get_rank();
         // f.reserve(g.npc);
         // psi.reserve(g.npc);
-        fft::init(g.npcd);
+        fft::init(g);
     }
 
     solver::~solver()
@@ -26,7 +26,7 @@ namespace fpsm
             f[i] = func(g.get_point(rank, i));
 
         // TODO barrier
-        fft::transform_3d(rank, g, f, fft::forward);
+        fft::transform_3d(rank, f, fft::forward);
     }
 
     void solver::iterate(int num)
@@ -35,7 +35,7 @@ namespace fpsm
             format_rhs();
             normalize_lhs();
             // TODO barrier
-            fft::transform_3d(rank, g, psi, fft::backward);
+            fft::transform_3d(rank, psi, fft::backward);
         }
     }
 
@@ -62,7 +62,7 @@ namespace fpsm
     {
     }
 
-    void solver::print()
+    void solver::print() const
     {
     }
 
