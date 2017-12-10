@@ -19,8 +19,7 @@ namespace fft
     std::vector<std::complex<double>> recv;
 
     fftw_complex* buf;
-    fftw_plan fp;
-    fftw_plan bp;
+    fftw_plan plan[2];
 
     grid g;
 
@@ -41,8 +40,7 @@ namespace fft
     template <class T>
     void linear_transform_factor(
         int rank,
-        std::vector<std::complex<T>>& a,
-        direction const& d
+        std::vector<std::complex<T>>& a
     );
 
     template <class T>

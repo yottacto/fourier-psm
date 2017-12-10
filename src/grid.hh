@@ -11,7 +11,7 @@ namespace fpsm
         point get_point(int rank, int local_id) const;
         // return the global 3d index
         index get_index(int rank, int local_id) const;
-        // return the global 3d index
+        // return the global 3d index of cores
         index get_core_index(int rank) const;
         int get_core_rank(index const& p) const;
         int get_local_id(index const& p) const;
