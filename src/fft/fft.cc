@@ -2,7 +2,7 @@
 #include <mpi.h>
 #include "fft.hh"
 #include "../utils/tools.hh"
-#include "../utils/type.hh"
+#include "../utils/constant.hh"
 
 namespace fpsm
 {

@@ -13,8 +13,6 @@ namespace fft
 {
     enum direction { forward, backward };
 
-    double const pi{std::acos(-1.)};
-
     std::vector<std::complex<double>> send;
     std::vector<std::complex<double>> recv;
 
