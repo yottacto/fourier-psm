@@ -3,19 +3,23 @@
 #include "solver.hh"
 #include "utils/constant.hh"
 
+#include "fft/fft.hh"
+#include "utils/type.hh"
+
 int main()
 {
     MPI::Init();
     // base number of cores per direction
-    auto bncd = 1;
+    auto bncd = 2;
     // base number of points per core per direction
     auto bnpcd = 3;
 
     fpsm::solver s(bncd, bnpcd);
+
     s.init(fpsm::default_f);
-    // s.iterate(100);
+    // s.iterate(10);
     // s.print();
-    MPI::COMM_WORLD.Barrier();
+
     MPI::Finalize();
 }
 

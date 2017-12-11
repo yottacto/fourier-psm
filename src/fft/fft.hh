@@ -62,11 +62,13 @@ namespace fft
                     send[i] = a[g.get_local_id(local_index)];
                 }
 
-                // TODO barrier ?
                 // init
                 auto phase = 1;
                 for (auto delta = g.ncd / 2; delta >= 1; delta /= 2, phase++) {
+
                     auto dest = utils::dest_id(phase, rank, dim_d);
+
+                    MPI::COMM_WORLD.Barrier();
                     MPI::COMM_WORLD.Sendrecv(
                         &send.front(), len, MPI::DOUBLE_COMPLEX, dest, 99,
                         &recv.front(), len, MPI::DOUBLE_COMPLEX, dest, 99
@@ -96,13 +98,22 @@ namespace fft
                     send[i] = {buf[i][0], buf[i][1]};
 
                 phase--;
-                for (auto delta = 1; delta <= g.ncd; delta *= 2, phase--) {
+                for (auto delta = 1; delta <= g.ncd/2; delta *= 2, phase--) {
                     auto dest = utils::dest_id(phase, rank, dim_d);
+
+                    // TODO remove this debug
+                    // if (rank >= 60) {
+                    //     std::cerr << "phase = " << phase <<
+                    //         " rank = " << rank <<
+                    //         " dest = " << dest << std::endl;
+                    //     // std::cerr << "[rank  == " << rank << "] [phase == " << phase << "] [dest == " << dest << "]" << std::endl;
+                    // }
+
+                    MPI::COMM_WORLD.Barrier();
                     MPI::COMM_WORLD.Sendrecv(
                         &send.front(), len, MPI::DOUBLE_COMPLEX, dest, 99,
                         &recv.front(), len, MPI::DOUBLE_COMPLEX, dest, 99
                     );
-
                     if (utils::front_half(phase, rank, dim_d)) {
                         for (auto i = 0; i < len/2; i++)
                             recv[i + len/2] = send[i];
@@ -123,7 +134,10 @@ namespace fft
                 // place back to a
                 for (auto i = 0; i < len; i++) {
                     auto local_index = index_by_dimension(d1, d2, i, dim_d);
-                    a[g.get_local_id(local_index)] = send[i];
+                    // FIXME (T)
+                    auto scale = 1.;
+                    if (fft_d == forward) scale = g.npd;
+                    a[g.get_local_id(local_index)] = send[i] / scale;
                 }
             }
         }
@@ -139,11 +153,11 @@ namespace fft
             linear_transform_factor(rank, a);
 
         for (auto i = 0; i < 3; i++) {
-            auto dime = static_cast<dimension>(i);
+            auto dime = dimension(i);
             transform_1d(rank, a, d, dime);
         }
 
-        if (d == backward)
+        if (d == forward)
             linear_transform_factor(rank, a);
     }
 }

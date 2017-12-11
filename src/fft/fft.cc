@@ -1,4 +1,6 @@
-#pragma once
+#include <iostream>
+// FIXME
+
 #include "fft.hh"
 #include "../utils/constant.hh"
 
@@ -31,7 +33,7 @@ namespace fft
         {
             int id = project(rank, d);
             int base = g.bncd;
-            return !(id & (1 << (base - phase + 1)));
+            return !(id & (1 << (base - phase)));
         }
 
         int next_delta_id(int rank, dimension const& d, int delta)

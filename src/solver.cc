@@ -1,4 +1,3 @@
-#pragma once
 #include <iomanip>
 #include <fstream>
 #include "solver.hh"
@@ -17,7 +16,7 @@ namespace fpsm
 
     solver::~solver()
     {
-        // fft::cleanup();
+        fft::cleanup();
     }
 
     void solver::init(func_type const& func)
@@ -25,12 +24,14 @@ namespace fpsm
         for (auto i = 0; i < g.npc; i++)
             f[i] = func(g.get_point(rank, i));
 
-        // FIXME DEBUGGING here
-        if (rank == 0)
-            std::cerr << fft::utils::dest_id(1, 0, dimension::x) << "\n";
-        return;
+        // TODO remove this
+        // if (rank == 0) {
+        //     for (int i = 0; i < g.nc; i++)
+        //         std::cerr << i << " -> " <<
+        //             fft::utils::dest_id(1, i, dimension::y) << "\n";
+        // }
+        // return;
 
-        // TODO barrier
         fft::transform_3d(rank, f, fft::forward);
 
         print(f);
@@ -41,7 +42,6 @@ namespace fpsm
         for (auto i = 0; i < num; i++) {
             format_rhs();
             normalize_lhs();
-            // TODO barrier
             fft::transform_3d(rank, psi, fft::backward);
         }
     }
@@ -63,6 +63,13 @@ namespace fpsm
             if (rank == 0 && i == 0) continue;
             sum += psi[i];
         }
+        std::complex<double> factor;
+        MPI::COMM_WORLD.Reduce(
+            &sum, &factor, 1, MPI::DOUBLE_COMPLEX, MPI::SUM, 0
+        );
+        if (rank == 0) {
+            psi[0] = -factor;
+        }
     }
 
     double solver::normalize_factor(index p) const
@@ -71,6 +78,21 @@ namespace fpsm
         if (p.y >= g.npd/2) p.y -= g.npd;
         if (p.z >= g.npd/2) p.z -= g.npd;
         return p.x * p.x + p.y * p.y + p.z * p.z;
+    }
+
+    template <class T>
+    T abs(T a)
+    {
+        return a < 0 ? -a : a;
+    }
+
+    template <class T>
+    T knight(T a)
+    {
+        auto const eps = 1e-8;
+        if (abs(a.real()) < eps) a.real(0);
+        if (abs(a.imag()) < eps) a.imag(0);
+        return a;
     }
 
     void solver::print(std::vector<std::complex<double>> const& a) const
@@ -97,6 +119,11 @@ namespace fpsm
                     out[id] = tmp[i * g.npc + lid];
                 }
             }
+
+            std::cerr << knight(out[g.get_id({0, 0, 0})]) << "\n";
+            std::cerr << knight(out[g.get_id({0, 0, 1})]) << "\n";
+            std::cerr << knight(out[g.get_id({0, 1, 0})]) << "\n";
+            std::cerr << knight(out[g.get_id({1, 0, 0})]) << "\n";
 
             fout << "n = " << g.np << "\n";
             for (auto i = 0; i < g.np; i++) {

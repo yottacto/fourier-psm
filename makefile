@@ -4,8 +4,8 @@ COLOR_ACT = \e[1;32m
 COLOR_ARG = \e[1;35m
 
 # build tools and flags
-CC = clang++
-LD = clang++
+CC = g++
+LD = g++
 
 # debug flags -D DEBUGGING_ENABLED -g
 CCFLAGS = -fno-operator-names -march=native -std=c++14 -pthread -Wall -Wextra -fopenmp -fsanitize=undefined -D DEBUGGING_ENABLED -O3
@@ -23,7 +23,7 @@ clean:
 	rm -rf $(BUILD)/
 test: all | $(OUTPUT)/
 	@echo -e "$(COLOR_ACT)running $(COLOR_ARG)$(BIN)$(COLOR_RST)..."
-	mpiexec -np 8 $(BIN)
+	mpiexec -np 64 ./$(BIN)
 reconf:
 	@echo -e "$(COLOR_ACT)reconfiguring$(COLOR_RST)..."
 	./configure
