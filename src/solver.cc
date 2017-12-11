@@ -7,7 +7,7 @@
 namespace fpsm
 {
     solver::solver(int ncd, int bnpcd)
-        : g{ncd, bnpcd}, f{g.npc}, psi{g.npc}
+        : g{ncd, bnpcd}, f(g.npc), psi(g.npc)
     {
         MPI::Init();
         rank = MPI::COMM_WORLD.Get_rank();

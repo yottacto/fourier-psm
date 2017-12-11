@@ -8,8 +8,8 @@ CC = clang++
 LD = clang++
 
 # debug flags -D DEBUGGING_ENABLED -g
-CCFLAGS = -fno-operator-names -march=native -std=c++14 -Wall -Wextra -fopenmp -fsanitize=undefined -D DEBUGGING_ENABLED -O3
-LDFLAGS = -fopenmp -fsanitize=undefined
+CCFLAGS = -fno-operator-names -march=native -std=c++14 -pthread -Wall -Wextra -fopenmp -fsanitize=undefined -D DEBUGGING_ENABLED -O3
+LDFLAGS = -lfftw3 -pthread -Wl,-rpath -Wl,/usr/lib/openmpi -Wl,--enable-new-dtags -L/usr/lib/openmpi -lmpi_cxx -lmpi -fopenmp -fsanitize=undefined
 OBJECTS = $(BUILD)/src/fft/fft.o $(BUILD)/src/grid.o $(BUILD)/src/main.o $(BUILD)/src/solver.o
 BUILD = build
 BIN = $(BUILD)/build

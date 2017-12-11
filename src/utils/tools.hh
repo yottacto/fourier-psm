@@ -3,7 +3,7 @@
 
 namespace fpsm
 {
-    index index_by_dimension(int base1, int base2, int d, dimension const& dime)
+    inline index index_by_dimension(int base1, int base2, int d, dimension const& dime)
     {
         if (dime == dimension::x) return {d, base1, base2};
         if (dime == dimension::y) return {base1, d, base2};
