@@ -64,9 +64,9 @@ namespace fpsm
     {
         auto index = get_index(global_id);
         return {
-            -2. * pi + index.x * delta,
-            -2. * pi + index.y * delta,
-            -2. * pi + index.z * delta
+            -pi + index.x * delta,
+            -pi + index.y * delta,
+            -pi + index.z * delta
         };
     }
 
@@ -74,9 +74,9 @@ namespace fpsm
     {
         auto index = get_index(rank, local_id);
         return {
-            -2. * pi + index.x * delta,
-            -2. * pi + index.y * delta,
-            -2. * pi + index.z * delta
+            -pi + index.x * delta,
+            -pi + index.y * delta,
+            -pi + index.z * delta
         };
     }
 
