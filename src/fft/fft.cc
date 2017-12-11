@@ -20,7 +20,7 @@ namespace fft
 
     namespace utils
     {
-        int project(int rank, dimension const& d)
+        int core_project(int rank, dimension const& d)
         {
             auto index = g.get_core_index(rank);
             if (d == dimension::x) return index.x;
@@ -29,9 +29,18 @@ namespace fft
             return index.z;
         }
 
+        int local_project(int local_id, dimension const& d)
+        {
+            auto index = g.get_local_index(local_id);
+            if (d == dimension::x) return index.x;
+            if (d == dimension::y) return index.y;
+            // if (d == dimension::z)
+            return index.z;
+        }
+
         bool front_half(int phase, int rank, dimension const& d)
         {
-            int id = project(rank, d);
+            int id = core_project(rank, d);
             int base = g.bncd;
             return !(id & (1 << (base - phase)));
         }
@@ -61,19 +70,19 @@ namespace fft
 
         int phase_id(int phase, int id)
         {
-            for (auto i = 1, len = g.ncd / 2; i < phase; i++, len /= 2)
+            for (auto i = 1, len = g.ncd / 2; i <= phase; i++, len /= 2)
                 id %= len;
             return id;
         }
 
-        std::complex<double> phase_factor(int phase, int rank, int local_id, dimension const& d)
+        std::complex<double> phase_factor(int phase, int rank, int local_pid, dimension const& d)
         {
-            auto project_id = project(rank, d);
-            auto pha_id = phase_id(phase, project_id);
+            auto core_project_id = core_project(rank, d);
+            auto pha_id = phase_id(phase, core_project_id);
 
             // calc W_N^k
             auto N = g.npd / (1 << (phase - 1));
-            auto k = pha_id * g.npcd + local_id;
+            auto k = pha_id * g.npcd + local_pid; // local_project(local_id, d);
 
             return {
                 std::cos(-2. * pi * k / N),

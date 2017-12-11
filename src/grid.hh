@@ -24,6 +24,9 @@ namespace fpsm
         // return the global 3d index of cores
         index get_core_index(int rank) const;
 
+        // return the local 3d index of cores
+        index get_local_index(int local_id) const;
+
         int get_core_rank(index const& p) const;
         int get_local_id(index const& p) const;
         int get_id(index const& p) const;

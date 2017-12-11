@@ -21,8 +21,18 @@ namespace fpsm
 
     void solver::init(func_type const& func)
     {
-        for (auto i = 0; i < g.npc; i++)
+        for (auto i = 0; i < g.npc; i++) {
             f[i] = func(g.get_point(rank, i));
+            psi[i] = {0, 0};
+
+            // // TODO remove
+            // auto p = g.get_point(rank, i);
+            // if (rank == 0 && i == 0) {
+            //     std::cout << p.x << ", " << p.y << ", " << p.z << "\n";
+            //     std::cout << f[i] << "\n";
+            // }
+
+        }
 
         // TODO remove this
         // if (rank == 0) {
@@ -34,7 +44,7 @@ namespace fpsm
 
         fft::transform_3d(rank, f, fft::forward);
 
-        print(f);
+        // print(f);
     }
 
     void solver::iterate(int num)
@@ -50,6 +60,11 @@ namespace fpsm
     {
         for (auto i = 0; i < g.npc; i++) {
             psi[i] *= std::norm(psi[i]);
+        }
+
+        fft::transform_3d(rank, psi, fft::forward);
+
+        for (auto i = 0; i < g.npc; i++) {
             psi[i] = f[i] - psi[i];
         }
     }
@@ -59,11 +74,14 @@ namespace fpsm
         // TODO reduce sum of (real, img) of id = 0
         std::complex<double> sum;
         for (auto i = 0; i < g.npc; i++) {
-            psi[i] /= normalize_factor(g.get_index(rank, i));
             if (rank == 0 && i == 0) continue;
+            auto nf = normalize_factor(g.get_index(rank, i));
+            psi[i] /= nf;
             sum += psi[i];
         }
         std::complex<double> factor;
+        // FIXME barrier?
+        MPI::COMM_WORLD.Barrier();
         MPI::COMM_WORLD.Reduce(
             &sum, &factor, 1, MPI::DOUBLE_COMPLEX, MPI::SUM, 0
         );
@@ -80,11 +98,9 @@ namespace fpsm
         return p.x * p.x + p.y * p.y + p.z * p.z;
     }
 
+    // TODO remove
     template <class T>
-    T abs(T a)
-    {
-        return a < 0 ? -a : a;
-    }
+    T abs(T a) { return a < 0 ? -a : a; }
 
     template <class T>
     T knight(T a)
@@ -120,10 +136,19 @@ namespace fpsm
                 }
             }
 
-            std::cerr << knight(out[g.get_id({0, 0, 0})]) << "\n";
-            std::cerr << knight(out[g.get_id({0, 0, 1})]) << "\n";
-            std::cerr << knight(out[g.get_id({0, 1, 0})]) << "\n";
-            std::cerr << knight(out[g.get_id({1, 0, 0})]) << "\n";
+            // // TODO remove
+            // std::cerr << knight(out[g.get_id({0, 0, 0})]) << "\n";
+            // std::cerr << knight(out[g.get_id({0, 0, 1})]) << "\n";
+            // std::cerr << knight(out[g.get_id({0, 1, 0})]) << "\n";
+            // std::cerr << knight(out[g.get_id({1, 0, 0})]) << "\n";
+            // std::cerr << knight(out[g.get_id({20, 23, 22})]) << "\n";
+            // std::cerr << knight(out[g.get_id({17, 23, 11})]) << "\n";
+
+            for (int i = 0; i < g.np; i++)
+                std::cerr << knight(out[i]) << "\n";
+
+            for (int i = 0; i < 20; i++)
+                std::cerr << knight(out[i]) << "\n";
 
             fout << "n = " << g.np << "\n";
             for (auto i = 0; i < g.np; i++) {
@@ -137,7 +162,7 @@ namespace fpsm
 
     void solver::print() const
     {
-        print(psi);
+        print(f);
     }
 
 }

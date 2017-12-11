@@ -28,10 +28,11 @@ namespace fft
 
     namespace utils
     {
-        int project(int rank, dimension const& d);
+        int core_project(int rank, dimension const& d);
+        int local_project(int local_id, dimension const& d);
         int dest_id(int phase, int rank, dimension const& d);
         bool front_half(int phase, int rank, dimension const& d);
-        std::complex<double> phase_factor(int phase, int rank, int local_id, dimension const& d);
+        std::complex<double> phase_factor(int phase, int rank, int local_pid, dimension const& d);
         int next_delta_id(int rank, dimension const& d, int delta);
         int prev_delta_id(int rank, dimension const& d, int delta);
         int phase_id(int phase, int id);
@@ -79,7 +80,7 @@ namespace fft
                             send[i] += recv[i];
                     } else {
                         for (auto i = 0; i < len; i++) {
-                            send[i] -= recv[i];
+                            send[i] = recv[i] - send[i];
                             send[i] *= utils::phase_factor(phase, rank, i, dim_d);
                         }
                     }
@@ -87,8 +88,8 @@ namespace fft
 
                 // main fftw
                 for (auto i = 0; i < len; i++) {
-                    buf[i][0] = recv[i].real();
-                    buf[i][1] = recv[i].imag();
+                    buf[i][0] = send[i].real();
+                    buf[i][1] = send[i].imag();
                 }
 
                 fftw_execute(plan[fft_d]);
@@ -152,6 +153,7 @@ namespace fft
         if (d == backward)
             linear_transform_factor(rank, a);
 
+        // FIXME
         for (auto i = 0; i < 3; i++) {
             auto dime = dimension(i);
             transform_1d(rank, a, d, dime);

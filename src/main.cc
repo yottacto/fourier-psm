@@ -16,9 +16,11 @@ int main()
 
     fpsm::solver s(bncd, bnpcd);
 
+    // s.init(fpsm::test_f);
+
     s.init(fpsm::default_f);
-    // s.iterate(10);
-    // s.print();
+    // s.iterate(1);
+    s.print();
 
     MPI::Finalize();
 }

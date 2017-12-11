@@ -45,18 +45,23 @@ namespace fpsm
         return {x, y, z};
     }
 
+    index grid::get_local_index(int local_id) const
+    {
+        auto z  = local_id / (npcd * npcd);
+        auto y  = (local_id % (npcd * npcd)) / npcd;
+        auto x  = (local_id % (npcd * npcd)) % npcd;
+        return {x, y, z};
+    }
+
     index grid::get_index(int rank, int local_id) const
     {
         auto cindex = get_core_index(rank);
-
-        auto lz = local_id / (npcd * npcd);
-        auto ly = (local_id % (npcd * npcd)) / npcd;
-        auto lx = (local_id % (npcd * npcd)) % npcd;
+        auto lindex = get_local_index(local_id);
 
         return {
-            cindex.x * npcd + lx,
-            cindex.y * npcd + ly,
-            cindex.z * npcd + lz
+            cindex.x * npcd + lindex.x,
+            cindex.y * npcd + lindex.y,
+            cindex.z * npcd + lindex.z
         };
     }
 
