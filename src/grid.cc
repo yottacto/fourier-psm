@@ -1,4 +1,5 @@
 #pragma once
+#include <iostream>
 #include "grid.hh"
 
 namespace fpsm
@@ -14,6 +15,19 @@ namespace fpsm
         np{npd * npd * npd},
         delta{len / npd}
     {
+    }
+
+    void grid::print() const
+    {
+        std::cerr << "grid:\n";
+        std::cerr << "bncd = " << bncd << "\n";
+        std::cerr << "ncd = " << ncd << "\n";
+        std::cerr << "nc = " << nc << "\n";
+        std::cerr << "bnpcd = " << bnpcd << "\n";
+        std::cerr << "npcd = " << npcd << "\n";
+        std::cerr << "npd = " << npd << "\n";
+        std::cerr << "npc = " << npc << "\n";
+        std::cerr << "np = " << np << "\n";
     }
 
     index grid::get_index(int global_id) const

@@ -29,6 +29,8 @@ namespace fpsm
         int get_id(index const& p) const;
         int get_id(int rank, int local_id) const;
 
+        void print() const;
+
 
         // base number of cores per direction
         int bncd{1};

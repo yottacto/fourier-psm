@@ -9,7 +9,6 @@ namespace fpsm
     solver::solver(int ncd, int bnpcd)
         : g{ncd, bnpcd}, f(g.npc), psi(g.npc)
     {
-        MPI::Init();
         rank = MPI::COMM_WORLD.Get_rank();
         // f.reserve(g.npc);
         // psi.reserve(g.npc);
@@ -18,8 +17,7 @@ namespace fpsm
 
     solver::~solver()
     {
-        MPI::Finalize();
-        fft::cleanup();
+        // fft::cleanup();
     }
 
     void solver::init(func_type const& func)
@@ -27,8 +25,13 @@ namespace fpsm
         for (auto i = 0; i < g.npc; i++)
             f[i] = func(g.get_point(rank, i));
 
+        // FIXME DEBUGGING here
+        if (rank == 0)
+            std::cerr << fft::utils::dest_id(1, 0, dimension::x) << "\n";
+        return;
+
         // TODO barrier
-        // fft::transform_3d(rank, f, fft::forward);
+        fft::transform_3d(rank, f, fft::forward);
 
         print(f);
     }
@@ -74,7 +77,13 @@ namespace fpsm
     {
         std::ofstream fout{"output/out.dat"};
         std::vector<std::complex<double>> out;
-        if (rank == 0) out.resize(g.np);
+
+        if (rank == 0)
+            out.resize(g.np);
+        // in case of reference binding to null pointer
+        else
+            out.resize(1);
+
         MPI::COMM_WORLD.Gather(
             &a.front(),   g.npc, MPI::DOUBLE_COMPLEX,
             &out.front(), g.npc, MPI::DOUBLE_COMPLEX,
