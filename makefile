@@ -13,6 +13,7 @@ LDFLAGS = -lfftw3 -pthread -Wl,-rpath -Wl,/usr/lib/openmpi -Wl,--enable-new-dtag
 OBJECTS = $(BUILD)/src/fft/fft.o $(BUILD)/src/grid.o $(BUILD)/src/main.o $(BUILD)/src/solver.o
 BUILD = build
 BIN = $(BUILD)/build
+OUTPUT = output
 
 # phonies
 .PHONY: all clean test reconf rebuild
@@ -20,9 +21,9 @@ all: $(BIN)
 clean:
 	@echo -e "$(COLOR_ACT)removing $(COLOR_ARG)$(BUILD)$(COLOR_RST)..."
 	rm -rf $(BUILD)/
-test: all
+test: all | $(OUTPUT)/
 	@echo -e "$(COLOR_ACT)running $(COLOR_ARG)$(BIN)$(COLOR_RST)..."
-	$(BIN)
+	mpiexec -np 8 $(BIN)
 reconf:
 	@echo -e "$(COLOR_ACT)reconfiguring$(COLOR_RST)..."
 	./configure
@@ -30,6 +31,9 @@ rebuild: clean
 	@$(MAKE) --no-print-directory all
 
 # build rules
+$(OUTPUT)/:
+	@echo -e "$(COLOR_ACT)making directory $(COLOR_ARG)$(OUTPUT)/$(COLOR_RST)..."
+	mkdir -p $(OUTPUT)/
 $(BUILD)/:
 	@echo -e "$(COLOR_ACT)making directory $(COLOR_ARG)$(BUILD)/$(COLOR_RST)..."
 	mkdir -p $(BUILD)/
