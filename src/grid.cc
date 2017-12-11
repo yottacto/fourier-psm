@@ -16,6 +16,14 @@ namespace fpsm
     {
     }
 
+    index grid::get_index(int global_id) const
+    {
+        auto z = global_id / (npd * npd);
+        auto y = (global_id % (npd * npd)) / npd;
+        auto x = (global_id % (npd * npd)) % npd;
+        return {x, y, z};
+    }
+
     index grid::get_core_index(int rank) const
     {
         auto z  = rank / (ncd * ncd);
@@ -36,6 +44,16 @@ namespace fpsm
             cindex.x * npcd + lx,
             cindex.y * npcd + ly,
             cindex.z * npcd + lz
+        };
+    }
+
+    point grid::get_point(int global_id) const
+    {
+        auto index = get_index(global_id);
+        return {
+            -2. * pi + index.x * delta,
+            -2. * pi + index.y * delta,
+            -2. * pi + index.z * delta
         };
     }
 

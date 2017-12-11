@@ -18,7 +18,7 @@ namespace fpsm
 
         void normalize_lhs();
         void format_rhs();
-        double normalize_factor(index const& p);
+        double normalize_factor(index p) const;
 
         int rank;
         grid g;

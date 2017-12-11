@@ -1,4 +1,6 @@
 #pragma once
+#include <iomanip>
+#include <fstream>
 #include "solver.hh"
 #include "fft/fft.hh"
 
@@ -58,12 +60,31 @@ namespace fpsm
         }
     }
 
-    double solver::normalize_factor(index const& p)
+    double solver::normalize_factor(index p) const
     {
+        if (p.x >= g.npd/2) p.x -= g.npd;
+        if (p.y >= g.npd/2) p.y -= g.npd;
+        if (p.z >= g.npd/2) p.z -= g.npd;
+        return p.x * p.x + p.y * p.y + p.z * p.z;
     }
 
     void solver::print() const
     {
+        std::ofstream fout{"out.dat"};
+        std::vector<std::complex<double>> out;
+        if (rank == 0) out.resize(g.np);
+        MPI::COMM_WORLD.Gather(
+            &psi.front(), g.npcd, MPI::DOUBLE_COMPLEX,
+            &out.front(), g.npcd, MPI::DOUBLE_COMPLEX,
+            0
+        );
+
+        fout << "n = " << g.np << "\n";
+        for (auto i = 0; i < g.np; i++) {
+            auto p = g.get_point(i);
+            fout << p.x << " " << p.y << " " << p.z << " "
+                << out[i].real() << " " << out[i].imag() << "\n";
+        }
     }
 
 }
