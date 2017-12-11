@@ -28,7 +28,9 @@ namespace fpsm
             f[i] = func(g.get_point(rank, i));
 
         // TODO barrier
-        fft::transform_3d(rank, f, fft::forward);
+        // fft::transform_3d(rank, f, fft::forward);
+
+        print(f);
     }
 
     void solver::iterate(int num)
@@ -68,23 +70,38 @@ namespace fpsm
         return p.x * p.x + p.y * p.y + p.z * p.z;
     }
 
-    void solver::print() const
+    void solver::print(std::vector<std::complex<double>> const& a) const
     {
-        std::ofstream fout{"out.dat"};
+        std::ofstream fout{"output/out.dat"};
         std::vector<std::complex<double>> out;
         if (rank == 0) out.resize(g.np);
         MPI::COMM_WORLD.Gather(
-            &psi.front(), g.npcd, MPI::DOUBLE_COMPLEX,
-            &out.front(), g.npcd, MPI::DOUBLE_COMPLEX,
+            &a.front(),   g.npc, MPI::DOUBLE_COMPLEX,
+            &out.front(), g.npc, MPI::DOUBLE_COMPLEX,
             0
         );
+        if (rank == 0) {
+            auto tmp = out;
+            for (auto i = 0; i < g.nc; i++) {
+                for (auto lid = 0; lid < g.npc; lid++) {
+                    auto id = g.get_id(i, lid);
+                    out[id] = tmp[i * g.npc + lid];
+                }
+            }
 
-        fout << "n = " << g.np << "\n";
-        for (auto i = 0; i < g.np; i++) {
-            auto p = g.get_point(i);
-            fout << p.x << " " << p.y << " " << p.z << " "
-                << out[i].real() << " " << out[i].imag() << "\n";
+            fout << "n = " << g.np << "\n";
+            for (auto i = 0; i < g.np; i++) {
+                auto p = g.get_point(i);
+                fout << p.x << " " << p.y << " " << p.z << " "
+                    << out[i].real() << " " << out[i].imag() << "\n";
+            }
         }
+
+    }
+
+    void solver::print() const
+    {
+        print(psi);
     }
 
 }

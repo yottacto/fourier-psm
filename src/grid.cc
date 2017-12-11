@@ -6,8 +6,8 @@ namespace fpsm
     grid::grid(int bncd, int bnpcd) :
         bncd{bncd},
         ncd{1 << bncd},
-        bnpcd{bnpcd},
         nc{ncd * ncd * ncd},
+        bnpcd{bnpcd},
         npcd{1 << bnpcd},
         npd{npcd * ncd},
         npc{npcd * npcd * npcd},
@@ -69,12 +69,23 @@ namespace fpsm
 
     int grid::get_core_rank(index const& p) const
     {
-        return p.z * ncd * ncd + p.y * ncd + p.z;
+        return p.z * ncd * ncd + p.y * ncd + p.x;
     }
 
     int grid::get_local_id(index const& p) const
     {
-        return p.z * npcd * npcd + p.y * npcd + p.z;
+        return p.z * npcd * npcd + p.y * npcd + p.x;
+    }
+
+    int grid::get_id(index const& p) const
+    {
+        return p.z * npd * npd + p.y * npd + p.x;
+    }
+
+    int grid::get_id(int rank, int local_id) const
+    {
+        auto index = get_index(rank, local_id);
+        return get_id(index);
     }
 }
 

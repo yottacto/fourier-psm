@@ -12,7 +12,7 @@ int main()
 
     fpsm::solver s(bncd, bnpcd);
     s.init(fpsm::default_f);
-    s.iterate(100);
-    s.print();
+    // s.iterate(100);
+    // s.print();
 }
 

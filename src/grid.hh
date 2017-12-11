@@ -26,18 +26,21 @@ namespace fpsm
 
         int get_core_rank(index const& p) const;
         int get_local_id(index const& p) const;
+        int get_id(index const& p) const;
+        int get_id(int rank, int local_id) const;
 
 
+        // base number of cores per direction
         int bncd{1};
 
         // number of cores per direction
         int ncd{1 << bncd};
 
-        // base number of points per core per direction
-        int bnpcd{3};
-
         // number of cores
         int nc{ncd * ncd * ncd};
+
+        // base number of points per core per direction
+        int bnpcd{3};
 
         // number of points per core per direction
         int npcd{1 << bnpcd};
