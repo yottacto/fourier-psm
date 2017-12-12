@@ -105,7 +105,7 @@ namespace fpsm
             for (auto i = 0; i < g.np; i++) {
                 auto p = g.get_point(i);
                 fout << p.x << " " << p.y << " " << p.z << " "
-                    << out[i].real() << " " << out[i].imag() << "\n";
+                    << out[i].imag() << " " << out[i].real() << "\n";
             }
         }
 
