@@ -34,6 +34,14 @@ namespace fpsm
 
         }
 
+        for (auto i = 0; i < g.npc; i++) {
+            auto p = g.get_point(rank, i);
+            auto in = g.get_index(rank, i);
+            p.x = in.x; p.y = in.y; p.z = in.z;
+            f[i] = func(p);
+            psi[i] = {0, 0};
+        }
+
         // TODO remove this
         // if (rank == 0) {
         //     for (int i = 0; i < g.nc; i++)
@@ -42,7 +50,10 @@ namespace fpsm
         // }
         // return;
 
-        fft::transform_3d(rank, f, fft::forward);
+        // TODO dont delete
+        // fft::transform_3d(rank, f, fft::forward);
+
+        fft::debug_transform_3d(rank, f, fft::forward);
 
         // print(f);
     }
@@ -103,12 +114,12 @@ namespace fpsm
     T abs(T a) { return a < 0 ? -a : a; }
 
     template <class T>
-    T knight(T a)
+    void knight(T a)
     {
-        auto const eps = 1e-8;
+        auto const eps = 1.e-12;
         if (abs(a.real()) < eps) a.real(0);
         if (abs(a.imag()) < eps) a.imag(0);
-        return a;
+        std::cerr << a.real() << " " << a.imag() << "\n";
     }
 
     void solver::print(std::vector<std::complex<double>> const& a) const
@@ -145,10 +156,7 @@ namespace fpsm
             // std::cerr << knight(out[g.get_id({17, 23, 11})]) << "\n";
 
             for (int i = 0; i < g.np; i++)
-                std::cerr << knight(out[i]) << "\n";
-
-            for (int i = 0; i < 20; i++)
-                std::cerr << knight(out[i]) << "\n";
+                knight(out[i]);
 
             fout << "n = " << g.np << "\n";
             for (auto i = 0; i < g.np; i++) {

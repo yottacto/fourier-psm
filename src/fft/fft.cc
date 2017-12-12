@@ -81,8 +81,8 @@ namespace fft
             auto pha_id = phase_id(phase, core_project_id);
 
             // calc W_N^k
-            auto N = g.npd / (1 << (phase - 1));
-            auto k = pha_id * g.npcd + local_pid; // local_project(local_id, d);
+            auto N = double(g.npd) / (1 << (phase - 1));
+            auto k = double(pha_id * g.npcd + local_pid); // local_project(local_id, d);
 
             return {
                 std::cos(-2. * pi * k / N),

@@ -75,6 +75,13 @@ namespace fft
                         &recv.front(), len, MPI::DOUBLE_COMPLEX, dest, 99
                     );
 
+                    // if (rank == 3 && d1 == 0 && d2 == 0) {
+                    //     for (int i = 0; i < len; i++) {
+                    //         std::cerr << send[i] << " :: " << recv[i] << "\n";
+                    //     }
+                    //     std::cerr << "\n";
+                    // }
+
                     if (utils::front_half(phase, rank, dim_d)) {
                         for (auto i = 0; i < len; i++)
                             send[i] += recv[i];
@@ -95,20 +102,23 @@ namespace fft
                 fftw_execute(plan[fft_d]);
 
                 // reindex, reverse phase
-                for (auto i = 0; i < len; i++)
+                for (auto i = 0; i < len; i++) {
                     send[i] = {buf[i][0], buf[i][1]};
+                    send[i] = {(rank * 8. + i) * g.npd, 0.};
+                }
 
                 phase--;
                 for (auto delta = 1; delta <= g.ncd/2; delta *= 2, phase--) {
                     auto dest = utils::dest_id(phase, rank, dim_d);
 
-                    // TODO remove this debug
-                    // if (rank >= 60) {
-                    //     std::cerr << "phase = " << phase <<
-                    //         " rank = " << rank <<
-                    //         " dest = " << dest << std::endl;
-                    //     // std::cerr << "[rank  == " << rank << "] [phase == " << phase << "] [dest == " << dest << "]" << std::endl;
-                    // }
+                    // TODO remove this
+                    if (rank == 3 && d1 == 0 && d2 == 0) {
+                        for (int i = 0; i < len; i++) {
+                            std::cerr << "phase = " << phase << " " <<
+                                dest << " ::\n";
+                        }
+                        std::cerr << "\n";
+                    }
 
                     MPI::COMM_WORLD.Barrier();
                     MPI::COMM_WORLD.Sendrecv(
@@ -145,6 +155,25 @@ namespace fft
     }
 
     template <class T>
+    void debug_transform_3d(
+        int rank,
+        std::vector<std::complex<T>>& a,
+        direction const& d)
+    {
+        if (d == backward)
+            linear_transform_factor(rank, a);
+
+        // FIXME
+        for (auto i = 0; i < 1; i++) {
+            auto dime = dimension(i);
+            transform_1d(rank, a, d, dime);
+        }
+
+        // if (d == forward)
+        //     linear_transform_factor(rank, a);
+    }
+
+    template <class T>
     void transform_3d(
         int rank,
         std::vector<std::complex<T>>& a,
@@ -162,6 +191,7 @@ namespace fft
         if (d == forward)
             linear_transform_factor(rank, a);
     }
+
 }
 
 }

@@ -7,6 +7,14 @@ namespace fpsm
 {
     auto constexpr pi = boost::math::constants::pi<double>();
 
+    inline std::complex<double> debug_f(point const& p)
+    {
+        return {
+            p.x + p.y + p.z,
+            p.x * p.y * p.z
+        };
+    }
+
     inline std::complex<double> test_f(point const& p)
     {
         return {
@@ -18,8 +26,8 @@ namespace fpsm
     inline std::complex<double> default_f(point const& p)
     {
         return {
-            std::cos(p.x) * std::cos(p.y) * std::cos(p.z),
-            std::sin(p.x) * std::sin(p.y) * std::sin(p.z)
+            std::sin(p.x) * std::sin(p.y) * std::sin(p.z),
+            std::cos(p.x) * std::cos(p.y) * std::cos(p.z)
         };
     };
 }
