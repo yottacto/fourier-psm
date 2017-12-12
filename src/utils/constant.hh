@@ -1,11 +1,12 @@
 #pragma once
-#include <boost/math/constants/constants.hpp>
+// #include <boost/math/constants/constants.hpp>
 #include <cmath>
 #include "type.hh"
 
 namespace fpsm
 {
-    auto constexpr pi = boost::math::constants::pi<double>();
+    // auto constexpr pi = boost::math::constants::pi<double>();
+    auto constexpr pi = 3.14159265358979323846;
 
     inline std::complex<double> debug_f(point const& p)
     {
