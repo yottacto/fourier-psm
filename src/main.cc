@@ -16,10 +16,8 @@ int main()
 
     fpsm::solver s(bncd, bnpcd);
 
-    s.init(fpsm::debug_f);
-
-    // s.init(fpsm::default_f);
-    // s.iterate(1);
+    s.init(fpsm::default_f);
+    s.iterate(1);
     s.print();
 
     MPI::Finalize();
