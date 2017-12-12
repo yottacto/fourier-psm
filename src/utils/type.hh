@@ -22,6 +22,7 @@ namespace fpsm
     enum dimension { x, y, z };
 
     using func_type = std::function<std::complex<double>(point const&)>;
-    using func_result_type = std::result_of_t<func_type(point)>;
+    using func_result_type = std::complex<double>;
+    // using func_result_type = std::result_of_t<func_type(point)>;
 }
 
