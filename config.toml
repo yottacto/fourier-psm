@@ -1,0 +1,9 @@
+[mask]
+policy = "deny"        # "allow" | "deny"
+selection = []
+
+[case.foo]
+bncd = 2
+bnpcd = 6
+iteration = 1
+
