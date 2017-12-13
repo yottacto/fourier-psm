@@ -122,7 +122,6 @@ namespace fft
                 for (auto i = 0; i < len; i++)
                     send[i] = {buf[i][0], buf[i][1]};
 
-
                 // reorder
                 auto head_core = utils::head_of_core_in_dimension(rank, dim_d);
 

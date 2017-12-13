@@ -16,6 +16,7 @@ namespace fpsm
         void iterate(int num);
         void print() const;
         void print(std::vector<std::complex<double>> const& a) const;
+        void print(func_type const& func) const;
 
         void normalize_lhs();
         void format_rhs();
