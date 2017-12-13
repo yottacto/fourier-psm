@@ -21,7 +21,7 @@ my $compiler__flags__architecture = "native";
 my @compiler__flags__extra = qw[-pthread -Wall -Wextra -fopenmp -fsanitize=undefined -D DEBUGGING_ENABLED];
 
 my $loader__bin = "clang++";
-my @loader__flags__extra = qw[-lfftw3 -pthread -Wl,-rpath -Wl,/usr/lib/openmpi -Wl,--enable-new-dtags -L/usr/lib/openmpi -lmpi_cxx -lmpi -fopenmp -fsanitize=undefined];
+my @loader__flags__extra = qw[-lfftw3 -pthread -Wl,-rpath -Wl,/usr/lib/openmpi -Wl,--enable-new-dtags -L/usr/lib/openmpi -lmpi_cxx -lmpi -fsanitize=undefined];
 
 my $build__config_path = "build.pl";
 my $build__cache_path = "build.cache";

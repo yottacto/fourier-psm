@@ -4,16 +4,15 @@ COLOR_ACT = \e[1;32m
 COLOR_ARG = \e[1;35m
 
 # build tools and flags
-CC = g++
-LD = g++
+CC = clang++
+LD = clang++
 
 # debug flags -D DEBUGGING_ENABLED -g
 CCFLAGS = -fno-operator-names -march=native -std=c++14 -pthread -Wall -Wextra -fopenmp -fsanitize=undefined -D DEBUGGING_ENABLED -O3
-LDFLAGS = -lfftw3 -pthread -Wl,-rpath -Wl,/usr/lib/openmpi -Wl,--enable-new-dtags -L/usr/lib/openmpi -lmpi_cxx -lmpi -fopenmp -fsanitize=undefined
+LDFLAGS = -lfftw3 -pthread -Wl,-rpath -Wl,/usr/lib/openmpi -Wl,--enable-new-dtags -L/usr/lib/openmpi -lmpi_cxx -lmpi -fsanitize=undefined
 OBJECTS = $(BUILD)/src/fft/fft.o $(BUILD)/src/grid.o $(BUILD)/src/main.o $(BUILD)/src/solver.o
 BUILD = build
 BIN = $(BUILD)/build
-OUTPUT = output
 
 # phonies
 .PHONY: all clean test reconf rebuild
@@ -21,9 +20,9 @@ all: $(BIN)
 clean:
 	@echo -e "$(COLOR_ACT)removing $(COLOR_ARG)$(BUILD)$(COLOR_RST)..."
 	rm -rf $(BUILD)/
-test: all | $(OUTPUT)/
+test: all
 	@echo -e "$(COLOR_ACT)running $(COLOR_ARG)$(BIN)$(COLOR_RST)..."
-	mpiexec -np 64 ./$(BIN)
+	$(BIN)
 reconf:
 	@echo -e "$(COLOR_ACT)reconfiguring$(COLOR_RST)..."
 	./configure
@@ -31,9 +30,6 @@ rebuild: clean
 	@$(MAKE) --no-print-directory all
 
 # build rules
-$(OUTPUT)/:
-	@echo -e "$(COLOR_ACT)making directory $(COLOR_ARG)$(OUTPUT)/$(COLOR_RST)..."
-	mkdir -p $(OUTPUT)/
 $(BUILD)/:
 	@echo -e "$(COLOR_ACT)making directory $(COLOR_ARG)$(BUILD)/$(COLOR_RST)..."
 	mkdir -p $(BUILD)/
@@ -49,10 +45,10 @@ $(BUILD)/src/fft/fft.o: src/fft/fft.cc src/fft/fft.hh src/grid.hh src/utils/cons
 $(BUILD)/src/grid.o: src/grid.cc src/grid.hh src/utils/constant.hh src/utils/type.hh | $(BUILD)/src
 	@echo -e "$(COLOR_ACT)compiling $(COLOR_ARG)src/grid.cc$(COLOR_RST)..."
 	$(CC) -c -o '$@' '$<' $(CCFLAGS)
-$(BUILD)/src/main.o: src/main.cc src/grid.hh src/solver.hh src/utils/constant.hh src/utils/type.hh | $(BUILD)/src
+$(BUILD)/src/main.o: src/main.cc src/config.hh src/fft/fft.hh src/grid.hh src/lib/cpptoml/cpptoml.hh src/solver.hh src/utils/constant.hh src/utils/tools.hh src/utils/type.hh third-party/cpptoml/cpptoml.hh | $(BUILD)/src
 	@echo -e "$(COLOR_ACT)compiling $(COLOR_ARG)src/main.cc$(COLOR_RST)..."
 	$(CC) -c -o '$@' '$<' $(CCFLAGS)
-$(BUILD)/src/solver.o: src/solver.cc src/fft/fft.hh src/grid.hh src/solver.hh src/utils/constant.hh src/utils/type.hh | $(BUILD)/src
+$(BUILD)/src/solver.o: src/solver.cc src/fft/fft.hh src/grid.hh src/solver.hh src/utils/constant.hh src/utils/tools.hh src/utils/type.hh | $(BUILD)/src
 	@echo -e "$(COLOR_ACT)compiling $(COLOR_ARG)src/solver.cc$(COLOR_RST)..."
 	$(CC) -c -o '$@' '$<' $(CCFLAGS)
 $(BIN): $(OBJECTS) | $(BUILD)/
