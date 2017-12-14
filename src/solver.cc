@@ -26,7 +26,6 @@ namespace fpsm
         }
 
         fft::transform_3d(rank, f, fft::forward);
-        fft::transform_3d(rank, psi_transformed, fft::forward);
     }
 
     void solver::iterate(int num)

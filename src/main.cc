@@ -8,8 +8,6 @@
 
 int main()
 {
-    MPI::Init();
-
     auto toml = cpptoml::parse_file("config.toml");
     icesp::configuration::config config{toml};
     // base number of cores per direction
@@ -18,6 +16,12 @@ int main()
     int bnpcd{config.cases.begin()->second.bnpcd};
     int iteration{config.cases.begin()->second.iteration};
 
+    MPI::Init();
+    auto rank = MPI::COMM_WORLD.Get_rank();
+
+    MPI::COMM_WORLD.Barrier();
+    auto start = MPI::Wtime();
+
     fpsm::solver s(bncd, bnpcd);
     // s.init(fpsm::debug_f);
     s.init(fpsm::default_f);
@@ -25,6 +29,14 @@ int main()
     s.print();
     // s.print(fpsm::default_f);
 
+    MPI::COMM_WORLD.Barrier();
+    auto end = MPI::Wtime();
+    auto elapsed = end - start;
+    auto tmp = elapsed;
+    MPI::COMM_WORLD.Reduce(&tmp, &elapsed, 1, MPI::DOUBLE, MPI::MAX, 0);
     MPI::Finalize();
+
+    if (rank == 0)
+        std::cout << "elapsed time: " << elapsed << " s\n";
 }
 
