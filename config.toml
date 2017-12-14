@@ -4,6 +4,6 @@ selection = []
 
 [case.foo]
 bncd = 1
-bnpcd = 4
-iteration = 10
+bnpcd = 6
+iteration = 2
 

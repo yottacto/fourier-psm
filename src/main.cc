@@ -8,6 +8,9 @@
 
 int main()
 {
+    MPI::Init();
+    auto rank = MPI::COMM_WORLD.Get_rank();
+
     auto toml = cpptoml::parse_file("config.toml");
     icesp::configuration::config config{toml};
     // base number of cores per direction
@@ -15,14 +18,15 @@ int main()
     // base number of points per core per direction
     int bnpcd{config.cases.begin()->second.bnpcd};
     int iteration{config.cases.begin()->second.iteration};
-
-    MPI::Init();
-    auto rank = MPI::COMM_WORLD.Get_rank();
+    fpsm::solver s(bncd, bnpcd);
+    if (rank == 0) {
+        std::cout << "n = " << s.g.npd << "\n";
+        std::cout << "tot = " << s.g.np << "\n";
+    }
 
     MPI::COMM_WORLD.Barrier();
     auto start = MPI::Wtime();
 
-    fpsm::solver s(bncd, bnpcd);
     // s.init(fpsm::debug_f);
     s.init(fpsm::default_f);
     s.iterate(iteration);
