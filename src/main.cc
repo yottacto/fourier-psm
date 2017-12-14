@@ -19,10 +19,11 @@ int main()
     int iteration{config.cases.begin()->second.iteration};
 
     fpsm::solver s(bncd, bnpcd);
-    s.init(fpsm::debug_f);
+    // s.init(fpsm::debug_f);
+    s.init(fpsm::default_f);
     s.iterate(iteration);
     s.print();
-    s.print(fpsm::default_f);
+    // s.print(fpsm::default_f);
 
     MPI::Finalize();
 }

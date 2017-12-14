@@ -26,6 +26,7 @@ namespace fpsm
         grid g;
         std::vector<std::complex<double>> f;
         std::vector<std::complex<double>> psi;
+        std::vector<std::complex<double>> psi_transformed;
     };
 }
 

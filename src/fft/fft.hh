@@ -122,54 +122,45 @@ namespace fft
                 for (auto i = 0; i < len; i++)
                     send[i] = {buf[i][0], buf[i][1]};
 
+
                 // reorder
                 auto head_core = utils::head_of_core_in_dimension(rank, dim_d);
 
                 // FIXME speical case: send to head_core self
-                if (rank == head_core) {
-                    for (auto i = 0; i < len; i++) {
+                if (rank == head_core)
+                    for (auto i = 0; i < len; i++)
                         tmp_buf[i] = send[i];
-                    }
-                }
-                if (rank != head_core) {
+                if (rank != head_core)
                     MPI::COMM_WORLD.Send(
                         &send.front(), len, MPI::DOUBLE_COMPLEX, head_core, 99
                     );
-                }
-                if (rank == head_core) {
+                if (rank == head_core)
                     for (auto i = 1; i < g.ncd; i++)
                         MPI::COMM_WORLD.Recv(
                             &tmp_buf[i * len], len, MPI::DOUBLE_COMPLEX,
                             utils::next_delta_id(rank, dim_d, i),
                             99
                         );
-                }
 
-                if (rank == head_core) {
-                    for (int i = 0; i < g.npd; i++) {
+                if (rank == head_core)
+                    for (int i = 0; i < g.npd; i++)
                         reorder[index[i]] = tmp_buf[i];
-                    }
-                }
 
                 // FIXME speical case: send to head_core self
-                if (rank == head_core) {
-                    for (auto i = 0; i < len; i++) {
+                if (rank == head_core)
+                    for (auto i = 0; i < len; i++)
                         send[i] = reorder[i];
-                    }
-                }
-                if (rank != head_core) {
+                if (rank != head_core)
                     MPI::COMM_WORLD.Recv(
                         &send.front(), len, MPI::DOUBLE_COMPLEX, head_core, 99
                     );
-                }
-                if (rank == head_core) {
+                if (rank == head_core)
                     for (auto i = 1; i < g.ncd; i++)
                         MPI::COMM_WORLD.Send(
                             &reorder[i * len], len, MPI::DOUBLE_COMPLEX,
                             utils::next_delta_id(rank, dim_d, i),
                             99
                         );
-                }
 
                 // place back to a
                 for (auto i = 0; i < len; i++) {

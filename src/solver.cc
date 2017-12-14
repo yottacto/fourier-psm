@@ -6,7 +6,7 @@
 namespace fpsm
 {
     solver::solver(int ncd, int bnpcd)
-        : g{ncd, bnpcd}, f(g.npc), psi(g.npc)
+        : g{ncd, bnpcd}, f(g.npc), psi(g.npc), psi_transformed(g.npc)
     {
         rank = MPI::COMM_WORLD.Get_rank();
         fft::init(rank, g);
@@ -22,9 +22,11 @@ namespace fpsm
         for (auto i = 0; i < g.npc; i++) {
             f[i] = func(g.get_point(rank, i));
             psi[i] = {0, 0};
+            psi_transformed[i] = {0, 0};
         }
 
         fft::transform_3d(rank, f, fft::forward);
+        fft::transform_3d(rank, psi_transformed, fft::forward);
     }
 
     void solver::iterate(int num)
@@ -45,19 +47,18 @@ namespace fpsm
         fft::transform_3d(rank, psi, fft::forward);
 
         for (auto i = 0; i < g.npc; i++) {
-            psi[i] = f[i] - psi[i];
+            psi[i] = f[i] - psi[i] + psi_transformed[i];
         }
     }
 
     void solver::normalize_lhs()
     {
         for (auto i = 0; i < g.npc; i++) {
-            if (rank == 0 && i == 0) continue;
-            auto nf = normalize_factor(g.get_index(rank, i));
+            // if (rank == 0 && i == 0) continue;
+            auto nf = normalize_factor(g.get_index(rank, i)) + 1.;
             psi[i] /= nf;
         }
-        // FIXME
-        // if (rank == 0) psi[0] = - reduce sum of all other value
+        psi_transformed = psi;
     }
 
     double solver::normalize_factor(index p) const
