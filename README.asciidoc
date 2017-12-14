@@ -1,2 +1,23 @@
 = Pseudo-spectral method: The Fourier method
 
+== Problems
+
+[latex]
+------------------------------------------------------------------------
+-\Delta \Psi + \abs{\Psi}^2 = f(x), x \in \Omega, \Omega = [-\pi, \pi]^3
+------------------------------------------------------------------------
+
+== Usgae
+
+to compile:
+
+    make
+
+to run one time:
+
+    make test
+
+or e.g.:
+
+    mpiexec -np 8 ./build/build
+
